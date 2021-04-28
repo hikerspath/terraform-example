@@ -15,3 +15,7 @@ data "aws_ami" "amzn" {
     values = ["hvm"]
   }
 }
+
+output "aws_availability_zones_all" {
+  value = data.aws_availability_zones.all
+}
