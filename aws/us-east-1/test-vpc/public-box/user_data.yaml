@@ -1,0 +1,70 @@
+user_data.yml
+#cloud-config
+
+---
+
+repo_upgrade: none
+
+# this logs all cloud-init command output
+output : { all : '| tee -a /var/log/cloud-init-output.log'}
+
+ssh_pwauth: True
+password: ${local_login}
+chpasswd:
+  list: |
+    ${local_login}:${local_password}
+  expire: False
+
+users:
+  - name: ${local_login}
+    gecos: ${local_name}
+    primary_group: users
+    groups: wheel
+    lock_passwd: False
+    homedir: /workstation
+
+manage_resolv_conf: True
+resolv_conf:
+  nameservers: ["4.2.2.2"]
+  searchdomains:
+    - us-east-1.compute.internal
+  options:
+    timeout: 2
+    attempts: 5
+
+packages:
+  - docker
+  - jq
+  - git
+  - graphviz
+  - epel-releas
+  - python2-pip
+  - tree
+
+write_files:
+  # ------------------------------------------------------------
+  # Basic Setup
+  # ------------------------------------------------------------
+  - path: /tmp/set-hostname.sh
+    permissions: '0744'
+    content: |
+      #!/usr/bin/env bash
+      set -e
+      source /etc/os-release
+      if [ "$ID" == "centos" ]; then
+        hostnamectl --static set-hostname student-workstation
+        systemctl restart systemd-hostnamed
+      elif [ "$ID" == "amzn" ]; then
+        hostname student-workstation
+      else
+        echo "Unsupported OS type $ID" >&2
+        exit 1
+      fi
+
+runcmd:
+  # General Use
+  - cloud-init-per once setup_hostname /tmp/set-hostname.sh
+  - systemctl enable docker
+  - systemctl start docker
+  - chown -hR ${local_login}:users /workstation
+  - chmod g+rw,o+rw /var/run/docker.sock

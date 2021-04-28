@@ -4,4 +4,5 @@ locals {
     Owner     = "me"
     Vpc       = "test-vpc"
   }
+  hosts = 1
 }
