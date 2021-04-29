@@ -12,11 +12,11 @@ Now that you have the hooks and everything else setup acording to hashicorp docu
 find . -name terraform.tf
 ```
 
-This repo is setup to use terraform's `Workspaces` with a limited view of a specific directory within the repository.  While tedious on smaller projects, once you hit about 500 resources in AWS, you will appreciate a smaller workspace that contains a very specific sub-group of tasks.
+This repo is setup to use terraform's `Workspaces` with a limited view of a specific directory within the repository.  While tedious on smaller projects, once you hit about 500 resources in AWS, you will appreciate a smaller workspace that contains a very specific sub-group of resources.
 
 ## Development Workflow
 
-Push events in the repository should send webhooks to app.terraform.io (once configured to do so) workspaces that match the directory structure save that the `/` is replaced with a `_`.  Examples are in the directory structure created already.  The default branch of the repository is meant to show what is presently deployed in every region.  
+Push events in the repository should send webhooks to app.terraform.io (once configured to do so).  These webhooks should then trigger terraform workspaces that match the directory structure below save that the `/` is replaced with a `_`.  Examples (base and public-box) are in the `test-vpc` directory structure already.  The default branch of the repository is meant to show what is presently deployed in every region and provider (if you use something other than AWS).
 
 ### Directory Structure
 
@@ -31,7 +31,9 @@ aws/                 # Service Provider
               ------- Workspace = aws_region_vpc_thing  # From Sample Code
 ```
 
-Terraform cloud will be sent webhooks based on event, but your code locations and workspace definitions will pick up when terraform cloud will apply in any particular location.  Essentially making the workspace trigger based on changes to a specific [folder structure](https://www.terraform.io/docs/cloud/workspaces/settings.html#terraform-working-directory) in its configuration.
+**NOTE**: While terraform cloud will be sent webhooks based on event, your code locations and workspace definitions (code inside the `terraform.tf` files) will pick up when terraform cloud should execute code within that same directory.  Essentially making the workspace trigger based on changes to a specific [folder structure](https://www.terraform.io/docs/cloud/workspaces/settings.html#terraform-working-directory) in its configuration.
+
+**NOTE**: The `thing` folders (because of the [globals](aws/modules/globals) module, `_locals.tf`, and `terraform.tf` file in each) should be capable of duplication between any environment.  This makes spinning up a development vpc SUPER easy.  To help in this, it is best (outside of the `_locals.tf` file, not have any region / vpc specific lingo or hard-coded values.
 
 ### Pull Request /vs/ Push
 
