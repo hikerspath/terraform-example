@@ -1,6 +1,6 @@
 # Terraform Setup
 
-Just an example of one way to build out a VPC and some basic components working inside terraform workspaces.
+Just an example of one way to build out an Amazon VPC the way they [recommend](https://docs.aws.amazon.com/vpc/latest/userguide/VPC_Scenario2.html) and show some basic concepts for working inside terraform workspaces.
 
 ## How Do I Use It?
 
